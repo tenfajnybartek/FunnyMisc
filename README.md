@@ -807,6 +807,4 @@ W razie problemów:
 ## Autor
 tenfajnybartek
 
-## Licencja
-Prywatny plugin dla gildii
 
