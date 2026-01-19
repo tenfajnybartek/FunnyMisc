@@ -1,0 +1,45 @@
+name: FunnyMisc
+version: '1.0.0-SNAPSHOT'
+main: pl.tenfajnybartek.funnymisc.base.FunnyPlugin
+api-version: '1.21'
+authors: [ tenfajnybartek ]
+description: Plugin na farmery i system depozytów (kompatybilny z 1.21 - 1.21.11+)
+
+commands:
+  funnymisc:
+    description: Główna komenda FunnyMisc
+    usage: /funnymisc <give|reload|info|deposit>
+    aliases: [fm, fmisc]
+
+  depozyt:
+    description: Otwiera GUI depozytu/schowka
+    usage: /depozyt
+    aliases: [limity, schowek]
+
+permissions:
+  funnymisc.*:
+    description: Dostęp do wszystkich funkcji FunnyMisc
+    default: op
+    children:
+      funnymisc.give: true
+      funnymisc.reload: true
+      funnymisc.use: true
+      funnymisc.deposit: true
+      funnymisc.dajkkilof: true
+  funnymisc.give:
+    description: Pozwala wydawać itemy
+    default: op
+  funnymisc.reload:
+    description: Pozwala przeładować konfigurację
+    default: op
+  funnymisc.use:
+    description: Pozwala używać farmerów i innych itemów
+    default: true
+  funnymisc.deposit:
+    description: Pozwala otwierać depozyt/schowek
+    default: true
+  funnymisc.dajkkilof:
+    description: Pozwala otrzymać materiały do craftingu Mega Kilofa
+    default: op
+
+

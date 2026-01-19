@@ -1,0 +1,542 @@
+# Konfiguracja FunnyMisc Plugin
+
+# ═══════════════════════════════════════════════════════════════
+# KONFIGURACJA BAZY DANYCH
+# ═══════════════════════════════════════════════════════════════
+database:
+  # Typ bazy danych: SQLITE lub MYSQL
+  # SQLite - lokalna baza danych (domyślnie, nie wymaga konfiguracji)
+  #   ✅ Idealna dla małych/średnich serwerów (do ~50 graczy)
+  #   ✅ Automatyczna konfiguracja
+  #   ✅ WAL mode (concurrent reads)
+  #   ✅ Pool size: 5 połączeń
+  #
+  # MySQL - zewnętrzna baza danych (wymaga konfiguracji poniżej)
+  #   ✅ Idealna dla dużych serwerów (100-300 graczy)
+  #   ✅ Pool size: 25 połączeń
+  #   ✅ Optymalizacje dla wydajności
+  #   ✅ Skalowalna
+  #   ⚠️ Wymaga zewnętrznego serwera MySQL
+  type: "sqlite"
+
+  # Konfiguracja MySQL (ignorowane jeśli type = sqlite)
+  # ═══════════════════════════════════════════════════════════════
+  # REKOMENDACJE DLA DUŻYCH SERWERÓW (200+ graczy):
+  #
+  # 1. Zmień type: "SQLITE" na type: "MYSQL"
+  # 2. Skonfiguruj poniższe parametry
+  # 3. Upewnij się że MySQL ma odpowiednie ustawienia:
+  #    - max_connections >= 100
+  #    - innodb_buffer_pool_size >= 256MB
+  #    - query_cache_size >= 64MB
+  # ═══════════════════════════════════════════════════════════════
+  mysql:
+    host: "localhost"           # Adres serwera MySQL
+    port: 3306                  # Port MySQL (domyślnie 3306)
+    database: "funnymisc"       # Nazwa bazy danych
+    username: "root"            # Użytkownik MySQL
+    password: ""                # Hasło MySQL
+    use-ssl: false              # Czy używać SSL (true dla zdalnych połączeń)
+
+    # ═══════════════════════════════════════════════════════════════
+    # POOL SIZE - Liczba połączeń do MySQL
+    # ═══════════════════════════════════════════════════════════════
+    # 📊 REKOMENDACJE WEDŁUG LICZBY GRACZY:
+    #
+    #   📗 50-100 graczy:
+    #      pool-size: 15
+    #      min-idle: 3
+    #      MySQL max_connections: >= 50
+    #
+    #   📘 100-200 graczy:
+    #      pool-size: 25 (domyślnie)
+    #      min-idle: 5
+    #      MySQL max_connections: >= 100
+    #
+    #   📙 200-300 graczy:
+    #      pool-size: 35
+    #      min-idle: 7
+    #      MySQL max_connections: >= 150
+    #
+    #   📕 300-400 graczy:
+    #      pool-size: 45
+    #      min-idle: 9
+    #      MySQL max_connections: >= 200
+    #
+    #   📓 400-500 graczy:
+    #      pool-size: 60
+    #      min-idle: 12
+    #      MySQL max_connections: >= 250
+    #
+    #   📔 500+ graczy:
+    #      pool-size: 75
+    #      min-idle: 15
+    #      MySQL max_connections: >= 300
+    #
+    # ⚠️ WAŻNE:
+    #   - Upewnij się że MySQL ma: max_connections >= pool-size × 3
+    #   - Dla 500+ graczy zalecane: dedykowany serwer MySQL
+    #   - Monitoruj użycie połączeń w logach
+    # ═══════════════════════════════════════════════════════════════
+    pool-size: 25               # Dla ~200 graczy (dostosuj według tabelki)
+    min-idle: 5                 # Minimum gotowych połączeń (20% pool-size)
+
+# ═══════════════════════════════════════════════════════════════
+# SYSTEM DEPOZYTÓW / SCHOWKA
+# ═══════════════════════════════════════════════════════════════
+deposit:
+  # Limity itemów w ekwipunku (nadmiar idzie do depozytu)
+  # Format: MATERIAL_NAME: limit
+  limits:
+    # Golden Apples (Koxy - najlepsze)
+    ENCHANTED_GOLDEN_APPLE: 2
+
+    # Golden Apples (Refille - słabsze)
+    GOLDEN_APPLE: 5
+
+    # Ender Pearls (Perły)
+    ENDER_PEARL: 5
+
+    # Snowballs (Śnieżki)
+    SNOWBALL: 16
+
+    # Arrows (Strzały)
+    ARROW: 64
+
+    # Ice (Lód)
+    ICE: 64
+
+    # Eggs (Jajka)
+    EGG: 16
+
+  # Niestandardowe nazwy wyświetlane (opcjonalne)
+  display-names:
+    enchanted_golden_apple: "Koxa"
+    golden_apple: "Refil"
+    ender_pearl: "Perła"
+    snowball: "Śnieżka"
+    arrow: "Strzała"
+    ice: "Lód"
+    egg: "Jajko"
+
+  # Konfiguracja GUI
+  gui:
+    # Rozmiar GUI (musi być wielokrotnością 9: 9, 18, 27, 36, 45, 54)
+    # 9 = 1 rząd, 18 = 2 rzędy, 27 = 3 rzędy, 36 = 4 rzędy, 45 = 5 rzędów, 54 = 6 rzędów
+    size: 54
+
+    title: "<dark_gray>[<gold>Depozyt</gold>]</dark_gray>"
+
+    # Sloty dla przedmiotów (numeracja od 0)
+    # Dla GUI 54 (6 rzędów): sloty 0-44 dla itemów, 45-53 dla dolnego paska
+    # Możesz ręcznie przypisać sloty dla konkretnych itemów
+    # Poniżej domyślne sloty wyśrodkowane dla wszystkich itemów z limitami:
+    item-slots:
+      ENCHANTED_GOLDEN_APPLE: 11  # Rząd 2 (wyśrodkowane)
+      GOLDEN_APPLE: 12
+      ENDER_PEARL: 13
+      SNOWBALL: 14
+      ARROW: 20  # Rząd 3 (wyśrodkowane)
+      ICE: 21
+      EGG: 22
+
+    # Automatyczne wypełnianie (true = wypełnia puste sloty automatycznie)
+    auto-fill: true
+
+
+    # Wypełniacz GUI (pusty slot)
+    filler:
+      enabled: true
+      material: "GRAY_STAINED_GLASS_PANE"
+      name: " "  # Pusta nazwa (spacja)
+
+    # Format nazwy itemu w GUI
+    item-name-format: "<yellow><bold><item></bold></yellow>"
+
+    # Lore (opisy) itemów
+    lore:
+      limit: "<gray>Limit: <white><limit></white></gray>"
+      current: "<gray>W ekwipunku: <white><current></white>/<limit></gray>"
+      deposit: "<gray>W depozycie: <gold><deposit></gold></gray>"
+      click-withdraw: "<green>» Kliknij aby wypłacić</green>"
+      withdraw-amount: "<gray>  Wypłacisz: <white><amount></white></gray>"
+      inventory-full: "<red>» Ekwipunek pełny!</red>"
+      no-deposit: "<red>» Brak itemów w depozycie</red>"
+
+    # Info item (środek dolnego paska)
+    info:
+      name: "<gold><bold>ℹ Informacje</bold></gold>"
+      lore:
+        - "<gray>Depozyt przechowuje nadmiar"
+        - "<gray>przedmiotów z twojego ekwipunku."
+        - ""
+        - "<yellow>Kliknij na przedmiot aby wypłacić</yellow>"
+        - "<gray>tyle ile się zmieści w ekwipunku.</gray>"
+
+    # Przycisk "Wypłać wszystko" (dolny pasek)
+    withdraw-all:
+      enabled: true
+      slot: 48  # Lewo od info (slot 49 to info)
+      material: "CHEST"
+      name: "<green><bold>↓ Wypłać Wszystko</bold></green>"
+      lore:
+        - "<gray>Kliknij aby wypłacić wszystkie"
+        - "<gray>itemy z depozytu do ekwipunku."
+        - ""
+        - "<yellow>» Wypłaci tyle ile się zmieści</yellow>"
+        - "<gray>  (uwzględniając limity)</gray>"
+
+  # Wiadomości specyficzne dla GUI depozytu
+  messages:
+    no-items-in-deposit: "<red>Nie masz tego przedmiotu w depozycie!</red>"
+
+# Globalne wiadomości (używaj MiniMessage format: https://docs.adventure.kyori.net/minimessage/format.html)
+messages:
+  prefix: "<dark_gray>[<gold>FunnyMisc</gold>]</dark_gray> "
+
+  # Wiadomości komend
+  no-permission: "<red>Nie masz uprawnień do użycia tej komendy!</red>"
+  player-only: "<red>Ta komenda może być użyta tylko przez gracza!</red>"
+  player-not-found: "<red>Gracz nie znaleziony!</red>"
+  config-reloaded: "<green>Konfiguracja została przeładowana!</green>"
+  unknown-item: "<red>Nieznany item: <item></red>"
+  available-items: "<yellow>Dostępne itemy: boyfarmer, sandfarmer, trenchdigger, stoniarka, stoniarka-collector, mega-kilof</yellow>"
+
+  # Wiadomości itemów
+  item-given: "<green>Wydano <amount>x <item> dla <player></green>"
+  item-received: "<green>Otrzymałeś <amount>x <item>!</green>"
+
+  # Informacje o pluginie
+  info-header: "<gold>=== FunnyMisc Info ===</gold>"
+  info-active-farmers: "<yellow>Aktywnych farmerów: <white><count></white></yellow>"
+  info-version: "<yellow>Wersja: <white><version></white></yellow>"
+
+  # Pomoc
+  help-header: "<gold>=== FunnyMisc Komendy ===</gold>"
+  help-give-boyfarmer: "<yellow>/funnymisc give boyfarmer [gracz] [ilość] <gray>- Wydaj Boy Farmer</gray></yellow>"
+  help-give-sandfarmer: "<yellow>/funnymisc give sandfarmer [gracz] [ilość] <gray>- Wydaj Sand Farmer</gray></yellow>"
+  help-give-trenchdigger: "<yellow>/funnymisc give trenchdigger [gracz] [ilość] <gray>- Wydaj Trench Digger</gray></yellow>"
+  help-give-stoniarka: "<yellow>/funnymisc give stoniarka [gracz] [ilość] <gray>- Wydaj Stoniarkę</gray></yellow>"
+  help-give-collector: "<yellow>/funnymisc give stoniarka-collector [gracz] [ilość] <gray>- Wydaj Zbieracz Stoniarek</gray></yellow>"
+  help-deposit: "<yellow>/funnymisc deposit <gray>- Otwórz depozyt/schowek</gray></yellow>"
+  help-reload: "<yellow>/funnymisc reload <gray>- Przeładuj konfigurację</gray></yellow>"
+  help-info: "<yellow>/funnymisc info <gray>- Informacje o pluginie</gray></yellow>"
+
+  # Użycie komendy
+  usage-give: "<red>Użycie: /funnymisc give <boyfarmer|sandfarmer|trenchdigger|stoniarka> [gracz] [ilość]</red>"
+
+  # Wiadomości stoniarki
+  cannot-place-here: "<red>Nie możesz tutaj postawić tego farmera!</red>"
+  stoniarka-placed: "<green>Stoniarka została postawiona!</green>"
+  stoniarka-retrieved: "<green>Zebrałeś stoniarkę!</green>"
+  stoniarka-cannot-break: "<red>Nie możesz zniszczyć stoniarki bez kilofa/łopaty z Silk Touch 10!</red>"
+
+  # Wiadomości depozytu
+  moved-to-deposit: "<yellow>Przeniesiono <white><amount>x <item></white> do depozytu (limit: <limit>)</yellow>"
+  withdrawn: "<green>Wypłacono <white><amount>x <item></white> z depozytu!</green>"
+  inventory-limit-reached: "<red>Osiągnąłeś limit <item> w ekwipunku! (limit: <limit>)</red>"
+  cannot-withdraw: "<red>Nie możesz wypłacić tego przedmiotu!</red>"
+  withdraw-all-success: "<green>Wypłacono <white><count></white> typów itemów z depozytu!</green>"
+  withdraw-all-nothing: "<red>Nie masz nic w depozycie do wypłacenia!</red>"
+  withdraw-all-partial: "<yellow>Wypłacono <white><count></white> typów itemów. Niektóre limity są pełne.</yellow>"
+
+
+# Ustawienia BoyFarmer
+boyfarmer:
+  # Bazowy materiał itemu (blok który dostaniesz po scraftowaniu)
+  # Możliwe wartości: END_PORTAL_FRAME, GOLD_BLOCK, DIAMOND_BLOCK, BEACON, etc.
+  base-material: "END_PORTAL_FRAME"
+
+  # Nazwa wyświetlana na itemie (MiniMessage format)
+  display-name: "<gold><bold>Boy Farmer</bold></gold>"
+
+  # Lore (opis) na itemie
+  lore:
+    - "<gray>Postaw ten blok aby stworzyć</gray>"
+    - "<gray>farmer obsydianu!</gray>"
+    - ""
+    - "<yellow>Kliknij PPM aby postawić</yellow>"
+
+  # Ile kratek w dół ma generować obsydian
+  depth: 30
+
+  # Co ile sekund ma generować obsydian (1.0 = 1 sekunda)
+  generation-interval: 1.0
+
+  # Czy farmer ma znikać po postawieniu
+  remove-frame-after-place: true
+
+  # Opóźnienie przed zniknięciem frame (w sekundach)
+  frame-removal-delay: 1.0
+
+  # Crafting recipe dla BoyFarmer
+  crafting:
+    enabled: true
+    shape:
+      - "OOO"
+      - "OEO"
+      - "OOO"
+    ingredients:
+      O: "OBSIDIAN"
+      E: "END_PORTAL_FRAME"
+
+  # Wiadomości specyficzne dla BoyFarmer
+  messages:
+    farmer-placed: "<green>Farmer obsydianu został postawiony!</green>"
+    farmer-complete: "<green>Boy Farmer zakończył pracę!</green>"
+
+# Ustawienia SandFarmer
+sandfarmer:
+  # Bazowy materiał itemu (blok który dostaniesz po scraftowaniu)
+  # Możliwe wartości: END_PORTAL_FRAME, GOLD_BLOCK, DIAMOND_BLOCK, BEACON, etc.
+  base-material: "END_PORTAL_FRAME"
+
+  # Nazwa wyświetlana na itemie (MiniMessage format)
+  display-name: "<yellow><bold>Sand Farmer</bold></yellow>"
+
+  # Lore (opis) na itemie
+  lore:
+    - "<gray>Postaw ten blok aby stworzyć</gray>"
+    - "<gray>farmer piasku!</gray>"
+    - ""
+    - "<yellow>Kliknij PPM aby postawić</yellow>"
+
+  # Ile kratek w dół ma generować piasek
+  depth: 30
+
+  # Co ile sekund ma generować piasek (1.0 = 1 sekunda)
+  generation-interval: 1.0
+
+  # Czy farmer ma znikać po postawieniu
+  remove-frame-after-place: true
+
+  # Opóźnienie przed zniknięciem frame (w sekundach)
+  frame-removal-delay: 1.0
+
+  # Crafting recipe dla SandFarmer
+  crafting:
+    enabled: true
+    shape:
+      - "SSS"
+      - "SES"
+      - "SSS"
+    ingredients:
+      S: "SAND"
+      E: "END_PORTAL_FRAME"
+
+  # Wiadomości specyficzne dla SandFarmer
+  messages:
+    farmer-placed: "<yellow>Farmer piasku został postawiony!</yellow>"
+    farmer-complete: "<yellow>Sand Farmer zakończył pracę!</yellow>"
+
+# Ustawienia TrenchDigger (Kopacz Fosy)
+trenchdigger:
+  # Bazowy materiał itemu (blok który dostaniesz po scraftowaniu)
+  # Możliwe wartości: END_PORTAL_FRAME, GOLD_BLOCK, DIAMOND_BLOCK, BEACON, etc.
+  base-material: "END_PORTAL_FRAME"
+
+  # Nazwa wyświetlana na itemie (MiniMessage format)
+  display-name: "<red><bold>Trench Digger</bold></red>"
+
+  # Lore (opis) na itemie
+  lore:
+    - "<gray>Postaw ten blok aby stworzyć</gray>"
+    - "<gray>kopacza fosy!</gray>"
+    - "<gray>Usuwa bloki w dół</gray>"
+    - ""
+    - "<yellow>Kliknij PPM aby postawić</yellow>"
+
+  # Ile kratek w dół ma usuwać bloki
+  depth: 30
+
+  # Co ile sekund ma usuwać kolejny blok (0.5 = pół sekundy)
+  generation-interval: 0.5
+
+  # Czy farmer ma znikać po postawieniu
+  remove-frame-after-place: true
+
+  # Opóźnienie przed zniknięciem frame (w sekundach)
+  frame-removal-delay: 1.0
+
+  # Crafting recipe dla TrenchDigger
+  crafting:
+    enabled: true
+    shape:
+      - "DDD"
+      - "DED"
+      - "DDD"
+    ingredients:
+      D: "DIAMOND_PICKAXE"
+      E: "END_PORTAL_FRAME"
+
+  # Wiadomości specyficzne dla TrenchDigger
+  messages:
+    farmer-placed: "<red>Kopacz fosy został postawiony!</red>"
+    farmer-complete: "<red>Trench Digger zakończył pracę!</red>"
+
+# Ustawienia Stoniarki
+stoniarka:
+  # Bazowy materiał itemu (blok który dostaniesz po scraftowaniu)
+  base-material: "END_STONE"
+
+  # Nazwa wyświetlana na itemie (MiniMessage format)
+  display-name: "<light_purple><bold>Stoniarka</bold></light_purple>"
+
+  # Lore (opis) na itemie
+  lore:
+    - "<gray>Postaw ten blok aby stworzyć</gray>"
+    - "<gray>nieskończone źródło kamienia!</gray>"
+    - "<gray>Blok nad stoniarką będzie</gray>"
+    - "<gray>automatycznie regenerował się</gray>"
+    - ""
+    - "<yellow>Kliknij PPM aby postawić</yellow>"
+    - "<red>Wymaga Silk Touch 10 do zebrania!</red>"
+
+  # Co ile sekund ma regenerować kamień (1.0 = 1 sekunda)
+  regeneration-interval: 1.0
+
+  # Wymagany poziom Silk Touch do zebrania stoniarki
+  required-silk-touch-level: 10
+
+  # Czy narzędzie musi być kilofem lub łopatą
+  require-pickaxe-or-shovel: true
+
+  # Crafting recipe dla Stoniarki
+  crafting:
+    enabled: true
+    shape:
+      - "RIR"
+      - "ISI"
+      - "RIR"
+    ingredients:
+      R: "REDSTONE"
+      I: "IRON_INGOT"
+      S: "STONE"
+
+  # Wiadomości specyficzne dla Stoniarki
+  messages:
+    stoniarka-placed: "<light_purple>Stoniarka została postawiona!</light_purple>"
+    stoniarka-retrieved: "<green>Zebrałeś stoniarkę!</green>"
+    cannot-place-here: "<red>Nie możesz tutaj postawić stoniarki!</red>"
+    cannot-break: "<red>Nie możesz zniszczyć stoniarki bez odpowiedniego narzędzia!</red>"
+    cannot-break-use-ppm: "<yellow>Użyj PPM (prawy przycisk myszy) aby zebrać stoniarkę!</yellow>"
+    stone-regenerated: "<gray>Kamień został zregenerowany!</gray>"
+
+# Ustawienia Narzędzia do Zbierania Stoniarek (Stoniarka Collector)
+stoniarka-collector:
+  # Bazowy materiał narzędzia
+  base-material: "GOLDEN_SHOVEL"
+
+  # Nazwa wyświetlana na narzędziu (MiniMessage format)
+  display-name: "<light_purple><bold>Zbieracz Stoniarek</bold></light_purple>"
+
+  # Lore (opis) na narzędziu
+  lore:
+    - "<gray>Specjalne narzędzie do zbierania</gray>"
+    - "<gray>stoniarek z ziemi!</gray>"
+    - ""
+    - "<yellow>Silk Touch X</yellow>"
+    - "<red>Ograniczone użycia!</red>"
+
+  # Poziom Silk Touch na narzędziu
+  silk-touch-level: 10
+
+  # Maksymalna wytrzymałość (ile razy można użyć)
+  # -1 = nieskończone użycia (standardowa wytrzymałość materiału)
+  max-uses: 5
+
+  # Czy pokazywać pozostałe użycia w lore
+  show-uses-in-lore: true
+
+  # Format wyświetlania użyć w lore
+  uses-lore-format: "<gray>Pozostałe użycia: <green><uses></green>/<max></gray>"
+
+  # Czy narzędzie ma się niszczyć po zużyciu wszystkich użyć
+  break-on-zero-uses: true
+
+  # Czy narzędzie ma być niezniszczalne (Unbreakable tag)
+  unbreakable: true
+
+  # Crafting recipe dla Stoniarka Collector
+  crafting:
+    enabled: true
+    shape:
+      - "DDD"
+      - "DED"
+      - " S "
+    ingredients:
+      D: "DIAMOND"
+      E: "ENDER_EYE"
+      S: "STICK"
+
+  # Wiadomości specyficzne dla Stoniarka Collector
+  messages:
+    tool-received: "<green>Otrzymałeś Zbieracz Stoniarek!</green>"
+    tool-broken: "<red>Twoje narzędzie do zbierania stoniarek się zużyło!</red>"
+    uses-remaining: "<yellow>Pozostałe użycia: <white><uses></white>/<max></yellow>"
+    use-right-click: "<yellow>Użyj PPM (prawy przycisk myszy) aby zebrać stoniarkę!</yellow>"
+    only-for-stoniarki: "<red>To narzędzie służy tylko do zbierania stoniarek! Kliknij PPM na stoniarkę.</red>"
+    cannot-mine: "<red>Nie możesz kopać tym narzędziem! Służy tylko do zbierania stoniarek.</red>"
+    cannot-attack: "<red>Nie możesz atakować tym narzędziem! Służy tylko do zbierania stoniarek.</red>"
+    not-a-stoniarka: "<red>To nie jest stoniarka! Znajdź stoniarkę (END_STONE z regeneracją kamienia).</red>"
+
+# Ustawienia Mega Kilofa
+mega-kilof:
+  # Nazwa wyświetlana na itemie (MiniMessage format)
+  display-name: "<gradient:#FFD700:#FF8C00><bold>⚒ MEGA KILOF ⚒</bold></gradient>"
+
+  # Lore (opis) na itemie
+  lore:
+    - "<gold>✦ Potężny kilof z legendarnymi enchantami!</gold>"
+    - ""
+    - ""
+    - "<yellow>⚡ Veinmining 3x3</yellow>"
+    - "<gray>Wykopuje bloki wokół!</gray>"
+    - ""
+    - "<gradient:#FF0000:#FF8C00>LEGENDARNY</gradient>"
+
+  # Enchanty na kilofie
+  enchants:
+    efficiency: 10
+    fortune: 5
+    unbreaking: 10
+
+  # Czy kilof ma być niezniszczalny
+  unbreakable: true
+
+  # Ustawienia Veinminingu (wykopywanie 3x3)
+  veinmining:
+    # Czy veinmining jest włączony
+    enabled: true
+
+    # Promień wykopywania (1 = 3x3, 2 = 5x5, itd.)
+    radius: 1
+
+    # Czy kopać tylko ten sam typ bloku
+    same-block-only: false
+
+    # Czy respektować typ narzędzia (tylko bloki które można kopać kilofem)
+    respect-tool-type: true
+
+    # Czy pokazywać cząsteczki przy niszczeniu bloków
+    show-particles: true
+
+    # Czy pokazywać wiadomość o ilości wykopanych bloków
+    show-message: true
+
+  # Crafting recipe dla Mega Kilofa
+  crafting:
+    enabled: true
+    shape:
+      - "BBB"
+      - " S "
+      - " S "
+    ingredients:
+      B: "DIAMOND_BLOCK"
+      S: "STICK"
+
+  # Wiadomości specyficzne dla Mega Kilofa
+  messages:
+    received: "<green>Otrzymałeś <gradient:#FFD700:#FF8C00>MEGA KILOF</gradient>!</green>"
+    veinmined: "<yellow>Wykopano <white><count></white> dodatkowych bloków!</yellow>"
+    crafting-items-given: "<green>Otrzymałeś materiały do craftingu Mega Kilofa!</green>"
