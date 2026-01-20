@@ -87,7 +87,7 @@
 
 ### Minimalne:
 - ✅ **Minecraft**: 1.21 - 1.21.11+
-- ✅ **Server**: Paper/Spigot/Purpur/Leaf
+- ✅ **Server**: Paper/Purpur/Leaf
 - ✅ **Java**: 21+
 - ✅ **RAM**: 2GB+ (dla serwera)
 
@@ -918,6 +918,4 @@ W razie problemów:
 ## Autor
 tenfajnybartek
 
-## Licencja
-Prywatny plugin dla gildii
 
