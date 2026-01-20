@@ -1,6 +1,51 @@
-# ✅ PODSUMOWANIE - Pool Size i Skalowanie
+# ✅ PODSUMOWANIE - FunnyMisc Plugin
 
-## 🎉 Co zostało dodane?
+## 📦 Wersje
+
+### v1.0.5 (2026-01-20) - **CURRENT** 🎉
+**System Backupów Inwentarzy + BackupMessageUtils**
+
+#### 🆕 Nowe Funkcje:
+- **Automatyczne Backupy** - przy śmierci, logout, lagach
+- **GUI Zarządzania** - paginacja 45 backupów/strona
+- **Przywracanie** - z zabezpieczeniem anty-duping
+- **Kompresja GZIP** - oszczędność 68% miejsca
+- **Limity Per Gracz** - Default (5), VIP (15), SVIP (30), Admin (100)
+- **Auto-Cleanup** - backupy >30 dni + nieaktywni gracze (7+ dni)
+- **Preview Inwentarza** - przed przywróceniem
+- **Metadata** - lokalizacja, XP, efekty, zdrowie, enderchest
+- **Asynchroniczne** - zero lagów
+- **Logowanie** - pełny audit log
+- **BackupMessageUtils** - 45+ konfigurowalnych wiadomości (MiniMessage)
+
+#### 🗄️ Baza Danych:
+- Tabela `player_backups` - przechowywanie backupów
+- Tabela `player_activity` - śledzenie aktywności
+- Indeksy dla wydajności
+
+#### 📚 Dokumentacja:
+- [README.md](README.md) - Główna dokumentacja
+- [CHANGELOG.md](CHANGELOG.md) - Historia zmian
+- [RELEASE_NOTES_v1.0.5.md](RELEASE_NOTES_v1.0.5.md) - Pełne release notes
+
+#### 💬 Komendy:
+- `/backup <gracz>` - przeglądanie backupów
+- `/backup create <gracz>` - manualny backup
+- `/backup cleanup` - czyszczenie
+- `/backup info <id>` - szczegóły
+- Aliasy: `/backupy`, `/bkp`
+
+#### 📊 Wydajność:
+- Kompresja: 68% oszczędności (GZIP)
+- Async Queue: zero lagów
+- Connection Pool: dla 500+ graczy
+- Cache: szybki dostęp
+- Batch Operations: wydajne przetwarzanie
+
+---
+
+### v1.0.0 (2026-01-19)
+**Initial Release - Pool Size i Skalowanie**
 
 ### 1. **Konfigurowalny Pool Size** ✅
 - Dodano `pool-size` i `min-idle` do config.yml

@@ -375,4 +375,118 @@ max_connections = 200
 
 **Tip:** Zawsze testuj konfigurację na serwerze testowym przed wdrożeniem na produkcję!
 
-**Ostatnia aktualizacja:** 2026-01-19
+---
+
+## 📦 Konfiguracja Backupów (v1.0.5+)
+
+### Minimalna (Domyślna - Działa out-of-the-box)
+```yaml
+backup:
+  enabled: true
+  auto-backup:
+    on-death: true
+    on-logout: false
+  max-backups:
+    default: 5
+```
+
+### Zalecana dla Małych Serwerów (50-100 graczy)
+```yaml
+backup:
+  enabled: true
+  
+  auto-backup:
+    on-death: true
+    on-logout: false  # Wyłączone - może powodować lagi
+    on-error: true
+  
+  max-backups:
+    default: 5
+    vip: 10
+    svip: 20
+    admin: 50
+  
+  cleanup:
+    enabled: true
+    retention-days: 30
+    check-interval: 12  # Co 12h
+    
+    inactive-players:
+      enabled: true
+      days-offline: 14  # 2 tygodnie
+      keep-latest: true
+  
+  security:
+    require-confirmation: true
+    restore-cooldown: 60
+    single-use: true
+  
+  compression:
+    enabled: true
+```
+
+### Zalecana dla Dużych Serwerów (200+ graczy)
+```yaml
+backup:
+  enabled: true
+  
+  auto-backup:
+    on-death: true
+    on-logout: false  # NIGDY nie włączaj na dużych serwerach!
+    on-error: true
+  
+  max-backups:
+    default: 5
+    vip: 15
+    svip: 30
+    admin: 100
+  
+  cleanup:
+    enabled: true
+    retention-days: 20  # Krócej - oszczędność miejsca
+    check-interval: 6   # Co 6h
+    
+    inactive-players:
+      enabled: true
+      days-offline: 7   # Tydzień
+      keep-latest: true
+      min-backups-to-keep: 1
+  
+  security:
+    require-confirmation: true
+    restore-cooldown: 120  # 2 minuty
+    single-use: true
+  
+  compression:
+    enabled: true
+  
+  deduplication:
+    enabled: true
+    min-interval: 60  # Min 60s między backupami
+  
+  save-extra-data:
+    xp: true
+    enderchest: false  # Wyłączone - oszczędność miejsca
+  
+  debug: false
+```
+
+### Przykład Personalizacji Wiadomości
+```yaml
+backup:
+  # ... inne opcje ...
+  
+  # Wiadomości można łatwo dostosować:
+  gui:
+    title: "<gradient:#FFD700:#FF8C00>Backupy:</gradient> <yellow><player></yellow>"
+    
+    item:
+      active:
+        name: "<rainbow><date></rainbow>"
+        click: "<green>👁 Kliknij aby zobaczyć</green>"
+        shift: "<yellow>⚡ Shift+Klik aby przywrócić</yellow>"
+```
+
+---
+
+**Ostatnia aktualizacja:** 2026-01-20

@@ -30,6 +30,26 @@ Potrzebujesz gotowej konfiguracji do skopiowania?
 
 ---
 
+### 📦 System Backupów (v1.0.5+)
+Chcesz poznać system backupów inwentarzy?
+
+👉 **[Release Notes v1.0.5](RELEASE_NOTES_v1.0.5.md)** - Kompletny opis systemu backupów
+👉 **[Changelog](CHANGELOG.md)** - Szczegóły zmian w v1.0.5
+- Architektura i przepływ danych
+- Konfiguracja i użytkowanie
+- Zabezpieczenia anty-duping
+- Optymalizacje wydajnościowe
+- Komendy i GUI
+
+---
+
+### 📝 Historia Zmian
+Chcesz zobaczyć co nowego?
+
+👉 **[Changelog](CHANGELOG.md)** - Wszystkie aktualizacje i zmiany
+
+---
+
 ## 🎯 Według Wielkości Serwera
 
 | Liczba graczy | Dokumentacja | Czas konfiguracji |
@@ -58,6 +78,7 @@ Potrzebujesz gotowej konfiguracji do skopiowania?
 - [Stoniarki](README.md#-stoniarki)
 - [Mega Kilof](README.md#-mega-kilof)
 - [System Depozytów](README.md#-system-depozytów)
+- [**System Backupów (v1.0.5+)**](RELEASE_NOTES_v1.0.5.md) ⭐
 
 ### Konfiguracja
 - [Config.yml](README.md#-konfiguracja)

@@ -82,6 +82,201 @@ database:
     min-idle: 5                 # Minimum gotowych połączeń (20% pool-size)
 
 # ═══════════════════════════════════════════════════════════════
+# SYSTEM BACKUPÓW INWENTARZY (v1.0.5+)
+# ═══════════════════════════════════════════════════════════════
+backup:
+  # Czy system backupów jest włączony
+  enabled: true
+
+  # Automatyczne tworzenie backupów
+  auto-backup:
+    # Przy śmierci gracza (ZALECANE: true)
+    on-death: true
+
+    # Przy wylogowaniu gracza (NIE ZALECANE dla dużych serwerów - może powodować lagi)
+    # Backup przy wylogowaniu jest przydatny tylko jeśli chcesz chronić przed rollbackiem
+    on-logout: false
+
+    # Przy błędach pluginu (automatyczne, nie można wyłączyć)
+    on-error: true
+
+  # Maksymalna liczba backupów per gracz (według grup uprawnień)
+  # Gdy limit zostanie przekroczony, najstarszy backup zostanie automatycznie usunięty
+  max-backups:
+    default: 5    # funnymisc.backup.limit.default (domyślnie dla wszystkich)
+    vip: 15       # funnymisc.backup.limit.vip
+    svip: 30      # funnymisc.backup.limit.svip
+    admin: 100    # funnymisc.backup.limit.admin
+
+  # Automatyczne czyszczenie starych backupów
+  cleanup:
+    # Czy automatyczne czyszczenie jest włączone
+    enabled: true
+
+    # Usuń backupy starsze niż X dni
+    retention-days: 30
+
+    # Jak często sprawdzać i czyścić (w godzinach)
+    # Domyślnie: co 6 godzin
+    check-interval: 6
+
+    # Czyszczenie backupów nieaktywnych graczy
+    inactive-players:
+      # Czy usuwać backupy graczy którzy nie byli online przez długi czas
+      enabled: true
+
+      # Usuń backupy graczy którzy nie byli online przez X dni
+      days-offline: 7
+
+      # Czy zachować przynajmniej jeden najnowszy backup (ZALECANE: true)
+      # Jeśli false, usuwa WSZYSTKIE backupy nieaktywnego gracza
+      keep-latest: true
+
+      # Minimalna liczba backupów do zachowania (nawet jeśli gracz nieaktywny)
+      min-backups-to-keep: 1
+
+  # Kompresja danych (oszczędza ~68% miejsca w bazie danych)
+  compression:
+    # Czy kompresja GZIP jest włączona (ZALECANE: true)
+    enabled: true
+
+    # Typ kompresji (obecnie tylko GZIP)
+    type: "gzip"
+
+  # Zabezpieczenia
+  security:
+    # Czy wymagać potwierdzenia przed przywróceniem backupu (ZALECANE: true)
+    require-confirmation: true
+
+    # Cooldown między przywróceniami (w sekundach)
+    # Zapobiega spamowaniu przywracania backupów
+    restore-cooldown: 60
+
+    # Czy backup może być użyty tylko raz (anty-duping)
+    # ZALECANE: true - zapobiega duplikowaniu itemów
+    single-use: true
+
+  # Deduplikacja - nie tworzy backupu jeśli inwentarz jest identyczny
+  deduplication:
+    # Czy deduplikacja jest włączona (ZALECANE: true)
+    enabled: true
+
+    # Minimalny interval między backupami tego samego gracza (w sekundach)
+    # Jeśli inwentarz się nie zmienił w tym czasie, backup nie zostanie utworzony
+    min-interval: 30
+
+  # Rate limiting - maksymalna częstotliwość tworzenia backupów
+  rate-limit:
+    # Minimalny interval między backupami przy śmierci (w milisekundach)
+    # Zapobiega spam'owaniu backupów przy wielokrotnym /kill
+    # 0 = wyłączone, 100 = 0.1s, 1000 = 1s
+    # ZALECANE: 100 (pozwala na 3 /kill szybko po sobie, ale blokuje spam)
+    death-interval-ms: 100
+
+  # Co zapisywać w backupach
+  save-extra-data:
+    # Czy zapisywać XP, lokalizację, efekty, zdrowie (metadata)
+    xp: true
+
+    # Czy zapisywać zawartość enderchesta
+    enderchest: true
+
+  # Tryb debugowania (pokazuje dodatkowe logi)
+  debug: false
+
+  # ═════════════════════════════════════════════════════════════
+  # WIADOMOŚCI BACKUPÓW
+  # ═════════════════════════════════════════════════════════════
+  messages:
+    no-permission: "<red>Nie masz uprawnień do tej akcji!</red>"
+    player-not-online: "<red>Gracz <yellow><player></yellow> nie jest online!</red>"
+    invalid-id: "<red>Nieprawidłowe ID backupu!</red>"
+    invalid-subcommand: "<red>Nieprawidłowa podkomenda! Użyj /backup help</red>"
+    invalid-usage: "<red>Nieprawidłowe użycie! Użyj /backup help</red>"
+
+    created-manual: "<green>✔ Utworzono manualny backup dla <yellow><player></yellow></green>"
+    create-failed: "<red>✘ Nie udało się utworzyć backupu!</red>"
+
+    restored: "<green>✔ Przywrócono backup z <yellow><date></yellow> dla <yellow><player></yellow></green>"
+    restored-target: "<green>✔ Twój inwentarz został przywrócony z <yellow><date></yellow> przez <yellow><admin></yellow></green>"
+    restore-failed: "<red>✘ Nie udało się przywrócić backupu!</red>"
+
+    already-restored: "<red>✘ Ten backup został już przywrócony wcześniej!</red>"
+    not-found: "<red>✘ Nie znaleziono backupu o podanym ID!</red>"
+    no-backups: "<red>✘ Gracz <yellow><player></yellow> nie ma żadnych backupów!</red>"
+
+    confirm-restore: "<yellow>⚠ Kliknij ponownie w ciągu 5 sekund aby potwierdzić przywrócenie backupu!</yellow>"
+
+    cleanup-complete: "<green>✔ Usunięto <yellow><deleted></yellow> starych backupów (starszych niż <yellow><days></yellow> dni)</green>"
+
+    preview-failed: "<red>✘ Nie udało się załadować podglądu backupu!</red>"
+
+    # Pomoc komendy /backup help
+    help:
+      lines:
+        - "<gray><strikethrough>                                                </strikethrough></gray>"
+        - "<gold><bold>Backup System</bold></gold> <dark_gray>-</dark_gray> <gray>Pomoc</gray>"
+        - ""
+        - "<yellow>/backup <gracz></yellow> <dark_gray>-</dark_gray> <gray>Przeglądaj backupy gracza</gray>"
+        - "<yellow>/backup create <gracz></yellow> <dark_gray>-</dark_gray> <gray>Stwórz manualny backup</gray>"
+        - "<yellow>/backup cleanup</yellow> <dark_gray>-</dark_gray> <gray>Wyczyść stare backupy</gray>"
+        - "<yellow>/backup info <id></yellow> <dark_gray>-</dark_gray> <gray>Informacje o backupie</gray>"
+        - "<gray><strikethrough>                                                </strikethrough></gray>"
+
+    # Szczegółowe info o backupie
+    info:
+      lines:
+        - "<gray><strikethrough>                                                </strikethrough></gray>"
+        - "<gold><bold>Backup #{id}</bold></gold>"
+        - ""
+        - "<gray>Gracz:</gray> <yellow>{player}</yellow>"
+        - "<gray>Data:</gray> <white>{date}</white>"
+        - "<gray>Powód:</gray> <white>{reason}</white>"
+        - "<gray>Przywrócony:</gray> <white>{restored}</white>"
+        - "<gray><strikethrough>                                                </strikethrough></gray>"
+
+    # Wiadomości GUI
+    gui:
+      # Tytuł głównego GUI
+      title: "<gold><bold>Backupy:</bold></gold> <yellow><player></yellow>"
+
+      # Tytuł preview
+      preview:
+        title: "<gold>Preview: <yellow><date></yellow></gold>"
+
+      # Itemy w GUI
+      item:
+        # Aktywny backup
+        active:
+          name: "<yellow><bold><date></bold></yellow>"
+          click: "<green>▶ Kliknij aby przejrzeć</green>"
+          shift: "<yellow>▶ Shift+Klik aby przywrócić</yellow>"
+
+        # Przywrócony backup
+        restored:
+          name: "<green><bold>✔ <date></bold></green>"
+          by: "<gray>Przywrócony przez:</gray> <yellow><admin></yellow>"
+          date: "<gray>Data:</gray> <white><date></white>"
+
+        # Wspólne
+        reason: "<gray>Powód:</gray> <white><reason></white>"
+        location: "<gray>Lokalizacja:</gray> <white><location></white>"
+        xp: "<gray>XP:</gray> <white>Poziom <level></white>"
+
+      # Przyciski nawigacji
+      navigation:
+        previous: "<yellow>← Poprzednia strona</yellow>"
+        next: "<yellow>Następna strona →</yellow>"
+        back: "<red><bold>← Powrót</bold></red>"
+
+      # Item informacyjny
+      info:
+        name: "<gold><bold>Informacje</bold></gold>"
+        player: "<gray>Gracz:</gray> <yellow><player></yellow>"
+        count: "<gray>Backupy na stronie:</gray> <white><count></white>"
+        page: "<gray>Strona:</gray> <white><page></white>"
+
+# ═══════════════════════════════════════════════════════════════
 # SYSTEM DEPOZYTÓW / SCHOWKA
 # ═══════════════════════════════════════════════════════════════
 deposit:
@@ -183,7 +378,7 @@ deposit:
         - "<gray>Kliknij aby wypłacić wszystkie"
         - "<gray>itemy z depozytu do ekwipunku."
         - ""
-        - "<yellow>» Wypłaci tyle ile się zmieści</yellow>"
+        - "<yellow>» Wypłacisz tyle ile się zmieści</yellow>"
         - "<gray>  (uwzględniając limity)</gray>"
 
   # Wiadomości specyficzne dla GUI depozytu
@@ -438,6 +633,17 @@ stoniarka-collector:
     - "<yellow>Silk Touch X</yellow>"
     - "<red>Ograniczone użycia!</red>"
 
+    # Wiadomości specyficzne dla Stoniarki Collector
+  messages:
+    # Wiadomość gdy gracz próbuje LPM zamiast PPM
+    use-right-click: "<yellow>Użyj PPM (prawy przycisk myszy) aby zebrać stoniarkę!</yellow>"
+    # Wiadomość gdy gracz próbuje użyć narzędzia nie na stoniarce
+    only-for-stoniarki: "<red>To narzędzie działa tylko na stoniarki!</red>"
+    # Wiadomość gdy narzędzie się zużyło
+    tool-broken: "<red>Zbieracz stoniarek się zużył!</red>"
+    # Wiadomość pokazująca pozostałe użycia
+    # {uses} = pozostałe użycia, {max} = maksymalne użycia
+    uses-remaining: "<gray>Pozostało <white>{uses}/{max}</white> użyć.</gray>"
   # Poziom Silk Touch na narzędziu
   silk-touch-level: 10
 
@@ -449,94 +655,38 @@ stoniarka-collector:
   show-uses-in-lore: true
 
   # Format wyświetlania użyć w lore
-  uses-lore-format: "<gray>Pozostałe użycia: <green><uses></green>/<max></gray>"
-
-  # Czy narzędzie ma się niszczyć po zużyciu wszystkich użyć
-  break-on-zero-uses: true
-
-  # Czy narzędzie ma być niezniszczalne (Unbreakable tag)
-  unbreakable: true
-
-  # Crafting recipe dla Stoniarka Collector
-  crafting:
-    enabled: true
-    shape:
-      - "DDD"
-      - "DED"
-      - " S "
-    ingredients:
-      D: "DIAMOND"
-      E: "ENDER_EYE"
-      S: "STICK"
-
-  # Wiadomości specyficzne dla Stoniarka Collector
-  messages:
-    tool-received: "<green>Otrzymałeś Zbieracz Stoniarek!</green>"
-    tool-broken: "<red>Twoje narzędzie do zbierania stoniarek się zużyło!</red>"
-    uses-remaining: "<yellow>Pozostałe użycia: <white><uses></white>/<max></yellow>"
-    use-right-click: "<yellow>Użyj PPM (prawy przycisk myszy) aby zebrać stoniarkę!</yellow>"
-    only-for-stoniarki: "<red>To narzędzie służy tylko do zbierania stoniarek! Kliknij PPM na stoniarkę.</red>"
-    cannot-mine: "<red>Nie możesz kopać tym narzędziem! Służy tylko do zbierania stoniarek.</red>"
-    cannot-attack: "<red>Nie możesz atakować tym narzędziem! Służy tylko do zbierania stoniarek.</red>"
-    not-a-stoniarka: "<red>To nie jest stoniarka! Znajdź stoniarkę (END_STONE z regeneracją kamienia).</red>"
-
-# Ustawienia Mega Kilofa
+# ═══════════════════════════════════════════════════════════════
+# MEGA KILOF - Potężny kilof diamentowy
+# ═══════════════════════════════════════════════════════════════
 mega-kilof:
-  # Nazwa wyświetlana na itemie (MiniMessage format)
-  display-name: "<gradient:#FFD700:#FF8C00><bold>⚒ MEGA KILOF ⚒</bold></gradient>"
-
-  # Lore (opis) na itemie
+  # Nazwa wyświetlana (MiniMessage format)
+  display-name: "<gradient:#00FFFF:#00FF00><bold>MEGA</bold></gradient> <white><bold>KILOF</bold></white>"
+  # Lore (opis) na narzędziu
   lore:
-    - "<gold>✦ Potężny kilof z legendarnymi enchantami!</gold>"
+    - "<gray>Potężny diamentowy kilof z</gray>"
+    - "<gray>niesamowitymi mocami!</gray>"
     - ""
+    - "<aqua>◆ Efficiency X</aqua>"
+    - "<gold>◆ Fortune V</gold>"
+    - "<blue>◆ Unbreaking X</blue>"
     - ""
-    - "<yellow>⚡ Veinmining 3x3</yellow>"
-    - "<gray>Wykopuje bloki wokół!</gray>"
-    - ""
-    - "<gradient:#FF0000:#FF8C00>LEGENDARNY</gradient>"
-
-  # Enchanty na kilofie
+    - "<yellow>✦ Veinmining 3x3</yellow>"
+    - "<red>✦ Niezniszczalny</red>"
+  # Enchanty na kilofu
   enchants:
     efficiency: 10
     fortune: 5
     unbreaking: 10
-
   # Czy kilof ma być niezniszczalny
   unbreakable: true
-
-  # Ustawienia Veinminingu (wykopywanie 3x3)
+  # Veinmining - kopanie 3x3
   veinmining:
     # Czy veinmining jest włączony
     enabled: true
-
-    # Promień wykopywania (1 = 3x3, 2 = 5x5, itd.)
+    # Promień kopania (1 = 3x3, 2 = 5x5, etc.)
     radius: 1
-
-    # Czy kopać tylko ten sam typ bloku
-    same-block-only: false
-
-    # Czy respektować typ narzędzia (tylko bloki które można kopać kilofem)
-    respect-tool-type: true
-
-    # Czy pokazywać cząsteczki przy niszczeniu bloków
-    show-particles: true
-
-    # Czy pokazywać wiadomość o ilości wykopanych bloków
-    show-message: true
-
-  # Crafting recipe dla Mega Kilofa
-  crafting:
-    enabled: true
-    shape:
-      - "BBB"
-      - " S "
-      - " S "
-    ingredients:
-      B: "DIAMOND_BLOCK"
-      S: "STICK"
-
-  # Wiadomości specyficzne dla Mega Kilofa
+  # Wiadomości
   messages:
-    received: "<green>Otrzymałeś <gradient:#FFD700:#FF8C00>MEGA KILOF</gradient>!</green>"
-    veinmined: "<yellow>Wykopano <white><count></white> dodatkowych bloków!</yellow>"
-    crafting-items-given: "<green>Otrzymałeś materiały do craftingu Mega Kilofa!</green>"
+    # Wiadomość po wykopaniu bloków veinminingiem
+    # {amount} = liczba wykopanych bloków
+    veinmined: "<green>⛏ Wykopano {amount} bloków!</green>"

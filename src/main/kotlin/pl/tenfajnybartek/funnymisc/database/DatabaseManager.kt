@@ -161,8 +161,84 @@ class DatabaseManager(private val plugin: FunnyPlugin) {
                 """.trimIndent()
             }
 
+            // Tabela dla backupów inwentarzy
+            val createBackupsTable = when (databaseType) {
+                DatabaseType.SQLITE -> """
+                    CREATE TABLE IF NOT EXISTS player_backups (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        uuid TEXT NOT NULL,
+                        player_name TEXT NOT NULL,
+                        timestamp INTEGER NOT NULL,
+                        reason INTEGER NOT NULL,
+                        inventory TEXT NOT NULL,
+                        armor TEXT NOT NULL,
+                        enderchest TEXT,
+                        metadata TEXT,
+                        is_restored INTEGER DEFAULT 0,
+                        restored_by TEXT,
+                        restored_at INTEGER
+                    )
+                """.trimIndent()
+
+                DatabaseType.MYSQL -> """
+                    CREATE TABLE IF NOT EXISTS player_backups (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
+                        uuid VARCHAR(36) NOT NULL,
+                        player_name VARCHAR(16) NOT NULL,
+                        timestamp BIGINT NOT NULL,
+                        reason TINYINT NOT NULL,
+                        inventory MEDIUMTEXT NOT NULL,
+                        armor MEDIUMTEXT NOT NULL,
+                        enderchest MEDIUMTEXT,
+                        metadata TEXT,
+                        is_restored BOOLEAN DEFAULT FALSE,
+                        restored_by VARCHAR(36),
+                        restored_at BIGINT,
+                        INDEX idx_uuid (uuid),
+                        INDEX idx_timestamp (timestamp),
+                        INDEX idx_restored (is_restored)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                """.trimIndent()
+            }
+
+            // Tabela dla aktywności graczy
+            val createActivityTable = when (databaseType) {
+                DatabaseType.SQLITE -> """
+                    CREATE TABLE IF NOT EXISTS player_activity (
+                        uuid TEXT PRIMARY KEY,
+                        player_name TEXT NOT NULL,
+                        last_seen INTEGER NOT NULL,
+                        first_seen INTEGER NOT NULL,
+                        total_backups INTEGER DEFAULT 0
+                    )
+                """.trimIndent()
+
+                DatabaseType.MYSQL -> """
+                    CREATE TABLE IF NOT EXISTS player_activity (
+                        uuid VARCHAR(36) PRIMARY KEY,
+                        player_name VARCHAR(16) NOT NULL,
+                        last_seen BIGINT NOT NULL,
+                        first_seen BIGINT NOT NULL,
+                        total_backups INT DEFAULT 0,
+                        INDEX idx_last_seen (last_seen)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                """.trimIndent()
+            }
+
             connection.createStatement().use { statement ->
                 statement.execute(createDepositTable)
+                statement.execute(createBackupsTable)
+                statement.execute(createActivityTable)
+            }
+
+            // Tworzenie indeksów dla SQLite (po utworzeniu tabel)
+            if (databaseType == DatabaseType.SQLITE) {
+                connection.createStatement().use { statement ->
+                    statement.execute("CREATE INDEX IF NOT EXISTS idx_backups_uuid ON player_backups(uuid)")
+                    statement.execute("CREATE INDEX IF NOT EXISTS idx_backups_timestamp ON player_backups(timestamp DESC)")
+                    statement.execute("CREATE INDEX IF NOT EXISTS idx_backups_restored ON player_backups(is_restored)")
+                    statement.execute("CREATE INDEX IF NOT EXISTS idx_activity_last_seen ON player_activity(last_seen)")
+                }
             }
 
             plugin.logger.info("Tabele bazy danych zostały utworzone")

@@ -16,6 +16,12 @@ commands:
     usage: /depozyt
     aliases: [limity, schowek]
 
+  backup:
+    description: Zarządzanie backupami inwentarzy
+    usage: /backup <gracz|create|cleanup|info|help>
+    aliases: [backupy, bkp]
+
+
 permissions:
   funnymisc.*:
     description: Dostęp do wszystkich funkcji FunnyMisc
@@ -26,6 +32,70 @@ permissions:
       funnymisc.use: true
       funnymisc.deposit: true
       funnymisc.dajkkilof: true
+      funnymisc.backup.*: true
+      funnymisc.combat.untag: true
+
+  funnymisc.backup.*:
+    description: Pełny dostęp do backupów
+    default: op
+    children:
+      funnymisc.backup.view: true
+      funnymisc.backup.restore: true
+      funnymisc.backup.create: true
+      funnymisc.backup.cleanup: true
+      funnymisc.backup.view.others: true
+      funnymisc.backup.restore.others: true
+      funnymisc.backup.bypass.cooldown: true
+      funnymisc.backup.bypass.single-use: true
+
+  funnymisc.backup.view:
+    description: Przeglądanie własnych backupów
+    default: op
+
+  funnymisc.backup.restore:
+    description: Przywracanie własnych backupów
+    default: op
+
+  funnymisc.backup.create:
+    description: Tworzenie manualnych backupów
+    default: op
+
+  funnymisc.backup.cleanup:
+    description: Czyszczenie starych backupów
+    default: op
+
+  funnymisc.backup.view.others:
+    description: Przeglądanie backupów innych graczy
+    default: op
+
+  funnymisc.backup.restore.others:
+    description: Przywracanie backupów innych graczy
+    default: op
+
+  funnymisc.backup.limit.default:
+    description: Domyślny limit backupów (5)
+    default: true
+
+  funnymisc.backup.limit.vip:
+    description: Limit VIP (15 backupów)
+    default: false
+
+  funnymisc.backup.limit.svip:
+    description: Limit SVIP (30 backupów)
+    default: false
+
+  funnymisc.backup.limit.admin:
+    description: Limit Admin (100 backupów)
+    default: op
+
+  funnymisc.backup.bypass.cooldown:
+    description: Pomija cooldown przywracania
+    default: op
+
+  funnymisc.backup.bypass.single-use:
+    description: Może użyć backupu wielokrotnie
+    default: op
+
   funnymisc.give:
     description: Pozwala wydawać itemy
     default: op

@@ -2,17 +2,30 @@
 
 ## ✅ STATUS: GOTOWY DO PRODUKCJI
 
-Data audytu: 2026-01-19
+Data audytu: 2026-01-20  
+**Ostatnia aktualizacja:** v1.0.5 - System Backupów + BackupMessageUtils
 
 ---
 
 ## 📦 INFORMACJE O PROJEKCIE
 
 **Nazwa:** FunnyMisc  
-**Wersja:** 1.0.0-SNAPSHOT  
-**Minecraft:** 1.21 - 1.21.11+  
-**API:** Paper/Spigot/Leaf  
+**Wersja:** 1.0.5-SNAPSHOT  
+**Wersja Produkcyjna:** 1.0.5-SNAPSHOT  
+**Minecraft:** 1.21.4 - 1.21.11+  
+**API:** Paper/Spigot/Leaf/Purpur  
 **Język:** Kotlin 1.9.0  
+
+### 🆕 Nowe w v1.0.5:
+- 📦 **System Backupów Inwentarzy** ✅ ZAIMPLEMENTOWANY
+- 🔧 **BackupMessageUtils** - Centralne zarządzanie wiadomościami
+- Automatyczne backupy przy śmierci, logout, lagach
+- GUI do zarządzania backupami (paginacja 45/strona)
+- Przywracanie z anty-dupingiem (single-use)
+- Kompresja GZIP (68% oszczędności)
+- Auto-cleanup (30 dni + nieaktywni gracze)
+- 45+ konfigurowalnych wiadomości (MiniMessage)
+- Zobacz: [RELEASE_NOTES_v1.0.5.md](RELEASE_NOTES_v1.0.5.md) | [CHANGELOG.md](CHANGELOG.md)  
 
 ---
 
@@ -23,11 +36,21 @@ Data audytu: 2026-01-19
 src/main/kotlin/pl/tenfajnybartek/funnymisc/
 ├── base/
 │   └── FunnyPlugin.kt ✅ Główna klasa pluginu
+├── backup/ ⭐ NOWE w v1.0.5
+│   ├── PlayerBackup.kt ✅ Modele danych backupów
+│   ├── InventorySerializer.kt ✅ Serializacja GZIP
+│   ├── MetadataSerializer.kt ✅ JSON metadata
+│   ├── AsyncBackupQueue.kt ✅ Async kolejka
+│   ├── BackupManager.kt ✅ Główna logika backupów
+│   ├── BackupListener.kt ✅ Auto-backupy przy śmierci
+│   ├── BackupCommand.kt ✅ Komendy /backup
+│   ├── BackupGUI.kt ✅ GUI z paginacją
+│   └── BackupMessageUtils.kt ✅ Utility dla wiadomości
 ├── commands/
 │   ├── FunnyMiscCommand.kt ✅ Główna komenda /funnymisc
 │   └── DepositCommand.kt ✅ Komendy depozytu
 ├── database/
-│   └── DatabaseManager.kt ✅ SQLite/MySQL z HikariCP + WAL mode
+│   └── DatabaseManager.kt ✅ SQLite/MySQL z HikariCP + WAL mode + tabele backupów
 ├── deposit/
 │   ├── DepositManager.kt ✅ Manager depozytów
 │   ├── DepositListener.kt ✅ Automatyczne przenoszenie
@@ -54,6 +77,8 @@ src/main/kotlin/pl/tenfajnybartek/funnymisc/
 ### 2. **Config.yml** ✅
 
 **Sekcje:**
+- ✅ `database` - Konfiguracja bazy danych (SQLite/MySQL + pool-size)
+- ✅ `backup` ⭐ - System backupów (30+ opcji) - NOWE w v1.0.5
 - ✅ `deposit` - System depozytów (limity, GUI, messages)
 - ✅ `messages` - Globalne wiadomości
 - ✅ `boyfarmer` - Konfiguracja Boy Farmer
@@ -62,10 +87,10 @@ src/main/kotlin/pl/tenfajnybartek/funnymisc/
 - ✅ `stoniarka` - Konfiguracja Stoniarki
 - ✅ `stoniarka-collector` - Konfiguracja Zbieracza
 - ✅ `mega-kilof` - Konfiguracja Mega Kilofa
-- ✅ `database` - Konfiguracja bazy danych
 
 **Wszystkie klucze wiadomości:**
 - ✅ `messages.*` - 25 globalnych wiadomości
+- ✅ `backup.*` ⭐ - 45+ wiadomości backupów (help, info, gui) - NOWE
 - ✅ `stoniarka.messages.*` - 6 wiadomości stoniarki
 - ✅ `stoniarka-collector.messages.*` - 8 wiadomości collectora
 - ✅ `mega-kilof.messages.*` - 3 wiadomości mega kilofa

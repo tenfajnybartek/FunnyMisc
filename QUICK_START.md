@@ -1,5 +1,18 @@
 # ⚡ Quick Start - Konfiguracja dla różnych wielkości serwerów
 
+## 🎉 Nowe w v1.0.5: System Backupów!
+
+Plugin automatycznie tworzy backupy inwentarzy przy śmierci gracza. 
+- Konfiguracja domyślnie włączona ✅
+- Backupy przechowywane 30 dni
+- Limity: Default (5), VIP (15), SVIP (30), Admin (100)
+- GUI: `/backup <gracz>`
+- Komendy: `/backup help` - pełna lista
+
+📚 Więcej: [RELEASE_NOTES_v1.0.5.md](RELEASE_NOTES_v1.0.5.md) | [CHANGELOG.md](CHANGELOG.md)
+
+---
+
 ## 📗 Mały Serwer (50-100 graczy)
 
 ### Nic nie zmieniaj! 

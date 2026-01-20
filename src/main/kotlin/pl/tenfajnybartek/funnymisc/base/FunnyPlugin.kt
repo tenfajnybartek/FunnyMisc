@@ -1,6 +1,10 @@
 package pl.tenfajnybartek.funnymisc.base
 
 import org.bukkit.plugin.java.JavaPlugin
+import pl.tenfajnybartek.funnymisc.backup.BackupCommand
+import pl.tenfajnybartek.funnymisc.backup.BackupGUI
+import pl.tenfajnybartek.funnymisc.backup.BackupListener
+import pl.tenfajnybartek.funnymisc.backup.BackupManager
 import pl.tenfajnybartek.funnymisc.commands.DepositCommand
 import pl.tenfajnybartek.funnymisc.commands.FunnyMiscCommand
 import pl.tenfajnybartek.funnymisc.database.DatabaseManager
@@ -35,6 +39,9 @@ class FunnyPlugin : JavaPlugin() {
     lateinit var depositGUI: DepositGUI
         private set
 
+    lateinit var backupManager: BackupManager
+        private set
+
     private lateinit var craftingListener: FarmerCraftingListener
 
     override fun onEnable() {
@@ -56,6 +63,42 @@ class FunnyPlugin : JavaPlugin() {
         depositManager.loadLimits()
 
         depositGUI = DepositGUI(this)
+
+        // System backupów
+        if (config.getBoolean("backup.enabled", true)) {
+            backupManager = BackupManager(this)
+
+            val backupListener = BackupListener(this)
+            server.pluginManager.registerEvents(backupListener, this)
+
+            // Rejestruj GUI listener
+            val backupGUI = BackupGUI(this)
+            server.pluginManager.registerEvents(backupGUI, this)
+
+            // Cleanup task dla backupów - uruchamia się co X godzin
+            val cleanupInterval = config.getInt("backup.cleanup.check-interval", 6)
+            server.scheduler.runTaskTimerAsynchronously(this, Runnable {
+                if (config.getBoolean("backup.cleanup.enabled", true)) {
+                    val retentionDays = config.getInt("backup.cleanup.retention-days", 30)
+                    val deleted = backupManager.cleanupOldBackups(retentionDays)
+                    if (deleted > 0) {
+                        logger.info("Usunięto $deleted starych backupów (>$retentionDays dni)")
+                    }
+
+                    // Czyszczenie backupów nieaktywnych graczy
+                    if (config.getBoolean("backup.cleanup.inactive-players.enabled", true)) {
+                        val daysOffline = config.getInt("backup.cleanup.inactive-players.days-offline", 7)
+                        val keepLatest = config.getBoolean("backup.cleanup.inactive-players.keep-latest", true)
+                        val minToKeep = config.getInt("backup.cleanup.inactive-players.min-backups-to-keep", 1)
+
+                        val deletedInactive = backupManager.cleanupInactivePlayerBackups(daysOffline, keepLatest, minToKeep)
+                        if (deletedInactive > 0) {
+                            logger.info("Usunięto $deletedInactive backupów nieaktywnych graczy")
+                        }
+                    }
+                }
+            }, 20L * 60 * 60 * cleanupInterval, 20L * 60 * 60 * cleanupInterval) // Co X godzin
+        }
 
         // Rejestruj listenery
         val placeListener = FarmerPlaceListener(this)
@@ -86,6 +129,13 @@ class FunnyPlugin : JavaPlugin() {
         getCommand("depozyt")?.setExecutor(depositCommand)
         getCommand("depozyt")?.tabCompleter = depositCommand
 
+        // Komenda backup (jeśli system włączony)
+        if (config.getBoolean("backup.enabled", true)) {
+            val backupCommand = BackupCommand(this)
+            getCommand("backup")?.setExecutor(backupCommand)
+            getCommand("backup")?.tabCompleter = backupCommand
+        }
+
         // Cleanup task - czyści nieaktywnych farmerów co 5 minut
         server.scheduler.runTaskTimer(this, Runnable {
             farmerManager.cleanupInactive()
@@ -105,6 +155,11 @@ class FunnyPlugin : JavaPlugin() {
         if (::stoniarkaManager.isInitialized) {
             stoniarkaManager.stopAll()
             stoniarkaManager.saveStoniarki()
+        }
+
+        // Zamknij backup manager (tylko jeśli został zainicjalizowany)
+        if (::backupManager.isInitialized) {
+            backupManager.shutdown()
         }
 
         // Zamknij połączenie z bazą danych (tylko jeśli zostało zainicjalizowane)

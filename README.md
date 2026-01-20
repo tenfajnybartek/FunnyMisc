@@ -66,6 +66,21 @@
 - **Database Support** - SQLite (domyślnie) lub MySQL
 - **Async Operations** - Zero lagów nawet przy wielu graczach
 
+### 📦 System Backupów (v1.0.5+)
+
+- **Automatyczne Backupy** - Tworzenie backupów inwentarza przy śmierci
+- **GUI Przeglądania** - Intuicyjny interfejs z paginacją (45 backupów/strona)
+- **Przywracanie Inwentarzy** - Bezpieczne przywracanie z anty-dupingiem
+- **Kompresja GZIP** - Oszczędność 68% miejsca w bazie danych
+- **Limity Per Gracz** - Default (5), VIP (15), SVIP (30), Admin (100)
+- **Auto-Cleanup** - Usuwanie backupów starszych niż 30 dni
+- **Nieaktywni Gracze** - Czyszczenie backupów graczy offline 7+ dni
+- **Metadata** - Zapis lokalizacji, XP, efektów, zdrowia, enderchesta
+- **Single-Use Protection** - Każdy backup używany tylko raz
+- **Asynchroniczne** - Zero lagów przy tworzeniu/przywracaniu
+- **Preview Inwentarza** - Podgląd przed przywróceniem
+- **Logowanie Akcji** - Pełny audit log operacji
+
 ---
 
 ## 🎯 Wymagania
@@ -167,7 +182,53 @@ deposit:
       material: "GRAY_STAINED_GLASS_PANE"
 ```
 
-**Pełna dokumentacja:** Zobacz [config.yml](src/main/resources/config.yml)
+#### 3. Backup System (v1.0.5+)
+```yaml
+backup:
+  enabled: true
+  
+  # Automatyczne backupy
+  auto-backup:
+    on-death: true      # Przy śmierci gracza
+    on-logout: false    # Przy wylogowaniu (NIE ZALECANE dla dużych serwerów)
+    on-error: true      # Przy błędach pluginu
+  
+  # Limity per grupa
+  max-backups:
+    default: 5          # Domyślnie
+    vip: 15             # VIP (funnymisc.backup.limit.vip)
+    svip: 30            # SVIP (funnymisc.backup.limit.svip)
+    admin: 100          # Admin (funnymisc.backup.limit.admin)
+  
+  # Auto-cleanup
+  cleanup:
+    enabled: true
+    retention-days: 30  # Usuń backupy starsze niż 30 dni
+    check-interval: 6   # Sprawdzaj co 6 godzin
+    
+    inactive-players:
+      enabled: true
+      days-offline: 7   # Usuń backupy graczy offline 7+ dni
+      keep-latest: true # Zachowaj przynajmniej 1 najnowszy
+  
+  # Zabezpieczenia
+  security:
+    require-confirmation: true  # Potwierdzenie przed przywróceniem
+    restore-cooldown: 60        # Cooldown 60s między przywróceniami
+    single-use: true            # Backup tylko raz (anty-duping)
+  
+  # Kompresja (oszczędza 68% miejsca)
+  compression:
+    enabled: true
+    type: "gzip"
+  
+  # Deduplikacja (nie tworzy identycznych backupów)
+  deduplication:
+    enabled: true
+    min-interval: 30    # Min 30s między backupami
+```
+
+**Pełna dokumentacja:** Zobacz [config.yml](src/main/resources/config.yml) lub [BACKUP_SYSTEM_PLAN.md](BACKUP_SYSTEM_PLAN.md)
 
 ---
 
@@ -208,6 +269,22 @@ deposit:
 /depozyt  # Otwórz GUI depozytu
 ```
 
+### Backupy: `/backup` (v1.0.5+)
+
+```bash
+# Przeglądanie backupów gracza
+/backup <gracz>
+
+# Tworzenie manualnego backupu
+/backup create <gracz>
+
+# Czyszczenie starych backupów
+/backup cleanup
+
+# Informacje o backupie
+/backup info <id>
+```
+
 ---
 
 ## 🔐 Permissions
@@ -217,6 +294,20 @@ funnymisc.admin:        # Pełny dostęp
 funnymisc.give:         # Wydawanie itemów
 funnymisc.reload:       # Reload konfiguracji
 funnymisc.deposit:      # Dostęp do depozytu (default: true)
+
+# Backupy (v1.0.5+)
+funnymisc.backup.view:           # Przeglądanie backupów
+funnymisc.backup.restore:        # Przywracanie backupów
+funnymisc.backup.create:         # Tworzenie manualnych backupów
+funnymisc.backup.cleanup:        # Czyszczenie backupów
+funnymisc.backup.view.others:    # Przeglądanie backupów innych graczy
+funnymisc.backup.restore.others: # Przywracanie backupów innych graczy
+funnymisc.backup.limit.default:  # Domyślny limit (5)
+funnymisc.backup.limit.vip:      # Limit VIP (15)
+funnymisc.backup.limit.svip:     # Limit SVIP (30)
+funnymisc.backup.limit.admin:    # Limit Admin (100)
+funnymisc.backup.bypass.cooldown:   # Pomija cooldown
+funnymisc.backup.bypass.single-use: # Może użyć backupu wielokrotnie
 ```
 
 ---
@@ -450,9 +541,29 @@ database:
 
 ## 📊 Changelog
 
+### v1.0.5 (2026-01-20) - **CURRENT**
+- ✅ **System Backupów Inwentarzy**
+- ✅ Automatyczne backupy przy śmierci
+- ✅ GUI z paginacją (45 backupów/strona)
+- ✅ Przywracanie z anty-dupingiem
+- ✅ Kompresja GZIP (68% oszczędności)
+- ✅ Limity per gracz (Default/VIP/SVIP/Admin)
+- ✅ Auto-cleanup (30 dni + nieaktywni gracze)
+- ✅ Asynchroniczne przetwarzanie
+- ✅ Preview inwentarza
+- ✅ Metadata (lokalizacja, XP, efekty)
+- ✅ Audit log wszystkich operacji
+- ✅ **BackupMessageUtils** - Centralne zarządzanie wiadomościami
+- ✅ 45+ konfigurowalnych wiadomości (MiniMessage)
+- 📚 Zobacz: [CHANGELOG.md](CHANGELOG.md)
+
 ### v1.0.0 (2026-01-19)
 - ✅ Initial release
-- ✅ Wszystkie features
+- ✅ Wszystkie podstawowe features
+- ✅ System depozytów
+- ✅ Narzędzia automatyzacji (Farmery, Stoniarki)
+- ✅ Mega Kilof
+- ✅ SQLite + MySQL support
 - ✅ Async operations
 - ✅ SQLite WAL mode
 - ✅ Production ready
